@@ -14,11 +14,12 @@ import ProductCard from "./Products/ProductCard";
 const Shop = () => {
   const dispatch = useDispatch();
   const { categories, products, checked, radio } = useSelector(
-   (state) => state.shop
+    (state) => state.shop
   );
 
   const categoriesQuery = useFetchCategoriesQuery();
   const [priceFilter, setPriceFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProductsQuery = useGetFilteredProductsQuery({
     checked,
@@ -34,13 +35,14 @@ const Shop = () => {
   useEffect(() => {
     if (!checked.length || !radio.length) {
       if (!filteredProductsQuery.isLoading) {
-        // Filter products based on both checked categories and price filter
+        // Filter products based on both checked categories, price filter, and search query
         const filteredProducts = filteredProductsQuery.data.filter(
           (product) => {
             // Check if the product price includes the entered price filter value
             return (
-              product.price.toString().includes(priceFilter) ||
-              product.price === parseInt(priceFilter, 10)
+              (product.price <= parseFloat(priceFilter) || priceFilter === "") &&
+              (product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                product.brand.toLowerCase().includes(searchQuery.toLowerCase())) // Search filter
             );
           }
         );
@@ -48,7 +50,7 @@ const Shop = () => {
         dispatch(setProducts(filteredProducts));
       }
     }
-  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter]);
+  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter, searchQuery]);
 
   const handleBrandClick = (brand) => {
     const productsByBrand = filteredProductsQuery.data?.filter(
@@ -64,7 +66,6 @@ const Shop = () => {
     dispatch(setChecked(updatedChecked));
   };
 
-  // Add "All Brands" option to uniqueBrands
   const uniqueBrands = [
     ...Array.from(
       new Set(
@@ -76,19 +77,21 @@ const Shop = () => {
   ];
 
   const handlePriceChange = (e) => {
-    // Update the price filter state when the user types in the input filed
     setPriceFilter(e.target.value);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
     <>
       <div className="container mx-auto pl-[4rem]">
         <div className="flex md:flex-row">
-          <div className=" p-3 mt-2 mb-2">
+          <div className="p-3 mt-2 mb-2">
             <h2 className="h4 text-center text-white py-2 bg-gradient-to-r from-[rgb(93,0,124)] to-pink-500 rounded-full mb-2">
               Filter by Categories
             </h2>
-
             <div className="p-5 w-[15rem]">
               {categories?.map((c) => (
                 <div key={c._id} className="mb-2">
@@ -99,7 +102,6 @@ const Shop = () => {
                       onChange={(e) => handleCheck(e.target.checked, c._id)}
                       className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-700 dark:focus:ring-purple-700 dark:ring-offset-gray-800 focus:ring-2 dark:bg-purpl-700 dark:border-gray-600"
                     />
-
                     <label
                       htmlFor="purple-checkbox"
                       className="ml-2 text-sm font-medium text-black dark:text-gray-700"
@@ -114,34 +116,29 @@ const Shop = () => {
             <h2 className="h4 text-center text-white py-2 bg-gradient-to-r from-[rgb(93,0,124)] to-green-500 rounded-full mb-2">
               Filter by Brands
             </h2>
-
             <div className="p-5">
               {uniqueBrands?.map((brand) => (
-                <>
-                  <div className="flex items-enter mr-4 mb-5">
-                    <input
-                      type="radio"
-                      id={brand}
-                      name="brand"
-                      onChange={() => handleBrandClick(brand)}
-                      className="w-4 h-4 text-pink-400 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-green-700 "
-                    />
-
-                    <label
-                      htmlFor="pink-radio"
-                      className="ml-2 text-sm font-medium text-black dark:text-gray-700"
-                    >
-                      {brand}
-                    </label>
-                  </div>
-                </>
+                <div className="flex items-enter mr-4 mb-5" key={brand}>
+                  <input
+                    type="radio"
+                    id={brand}
+                    name="brand"
+                    onChange={() => handleBrandClick(brand)}
+                    className="w-4 h-4 text-pink-400 bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-green-700"
+                  />
+                  <label
+                    htmlFor="pink-radio"
+                    className="ml-2 text-sm font-medium text-black dark:text-gray-700"
+                  >
+                    {brand}
+                  </label>
+                </div>
               ))}
             </div>
 
             <h2 className="h4 text-center text-white py-2 bg-gradient-to-r from-[rgb(93,0,124)] to-yellow-500 rounded-full mb-2">
               Filer by Price
             </h2>
-
             <div className="p-5 w-[15rem]">
               <input
                 type="text"
@@ -163,8 +160,22 @@ const Shop = () => {
           </div>
 
           <div className="p-3">
-            <h2 className="h4 text-center mb-2">{products?.length} Products</h2>
+            
             <div className="flex flex-wrap">
+              {/* Search Bar */}
+              <div className="w-full mb-4">
+                <input
+                  type="text"
+                  placeholder="Search for products..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="bg-gray-100 w-[95%] px-3 py-2 ml-5 border border-gray-500 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+              <div className="w-full">
+                <h2 className="h4 text-center mb-2">{products?.length} Products</h2>
+              </div>
+
               {products.length === 0 ? (
                 <Loader />
               ) : (

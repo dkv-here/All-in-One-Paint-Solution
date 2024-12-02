@@ -18,7 +18,7 @@ const ProductCard = ({ p }) => {
   };
 
   return (
-    <div className="text-white shadow-lg shadow-[rgba(0,0,0,0.51)] max-w-sm relative bg-[#1A1A1A] rounded-lg shaodw dark:bg-gray-800 dark:border-gray-700 mx-5 my-3">
+    <div className="text-white shadow-lg shadow-[rgba(0,0,0,0.51)] w-[250px] h-full relative bg-[#1A1A1A] rounded-lg shaodw dark:bg-gray-800 dark:border-gray-700 mx-2 ">
       <section className="relative">
         <Link to={`/product/${p._id}`}>
           <span className="absolute bottom-3 right-3 bg-pink-100 text-pink-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-[rgb(93,0,124)] dark:text-purple-300">
@@ -28,7 +28,7 @@ const ProductCard = ({ p }) => {
             className="cursor-pointer w-full rounded-t-lg"
             src={p.image}
             alt={p.name}
-            style={{ width: "300px", height: "300px", objectFit: "cover" }}
+            style={{ width: "250px", height: "250px", objectFit: "cover" }}
           />
         </Link>
         <HeartIcon product={p} />
@@ -36,7 +36,7 @@ const ProductCard = ({ p }) => {
 
       <div className="p-5">
         <div className="flex justify-between">
-          <h5 className="mb-2 text-xl text-whiet dark:text-white">{p?.name}</h5>
+          <h5 className="mb-2 text-md text-whiet dark:text-white">{p?.name}</h5>
 
           <p className="text-black font-semibold text-yellow-500">
             {p?.price?.toLocaleString("en-IN", {
@@ -46,8 +46,8 @@ const ProductCard = ({ p }) => {
           </p>
         </div>
 
-        <p className="mb-3 font-normal text-sm text-[#CFCFCF]">
-          {p?.description?.substring(0, 40)} ...
+        <p className="mb-3 font-normal text-xs text-[#CFCFCF]">
+          {p?.description?.substring(0, 50)} ...
         </p>
 
         <section className="flex justify-between items-center">

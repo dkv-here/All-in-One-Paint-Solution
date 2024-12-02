@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import AdminMenu from "./AdminMenu";
 import OrderList from "./OrderList";
 import Loader from "../../components/Loader";
+import { CreditCardIcon, UsersIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 
 const AdminDashboard = () => {
   const { data: sales, isLoading } = useGetTotalSalesQuery();
@@ -39,9 +40,6 @@ const AdminDashboard = () => {
       dataLabels: {
         enabled: true,
       },
-      stroke: {
-        curve: "smooth",
-      },
       title: {
         text: "Sales Trend",
         align: "left",
@@ -60,7 +58,7 @@ const AdminDashboard = () => {
       },
       yaxis: {
         title: {
-          text: "Sales",
+          text: "Sales ( ₹ )",
         },
         min: 0,
       },
@@ -77,7 +75,9 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (salesDetail) {
-      const formattedSalesDate = salesDetail.map((item) => ({
+      const sortedSalesDetail = [...salesDetail].sort((a, b) => new Date(a._id) - new Date(b._id));
+
+      const formattedSalesDate = sortedSalesDetail.map((item) => ({
         x: item._id,
         y: item.totalSales,
       }));
@@ -106,7 +106,7 @@ const AdminDashboard = () => {
         <div className="w-[100%] flex justify-around flex-wrap text-white">
           <div className="rounded-lg bg-gradient-to-r from-[rgb(93,0,124)] to-green-500 p-5 w-[20rem] mt-5">
             <div className="font-bold rounded-full w-[3rem] bg-white text-black text-center p-3">
-              $
+              <CreditCardIcon />
             </div>
 
             <p className="mt-5">Sales</p>
@@ -116,22 +116,22 @@ const AdminDashboard = () => {
           </div>
           <div className="rounded-lg bg-gradient-to-r from-[rgb(93,0,124)] to-pink-500 p-5 w-[20rem] mt-5">
             <div className="font-bold rounded-full w-[3rem] bg-white text-black text-center p-3">
-              $
+              <UsersIcon />
             </div>
 
             <p className="mt-5">Customers</p>
             <h1 className="text-xl font-bold">
-              $ {isLoading ? <Loader /> : customers?.length}
+              {isLoading ? <Loader /> : customers?.length}
             </h1>
           </div>
           <div className="rounded-lg bg-gradient-to-r from-[rgb(93,0,124)] to-yellow-500 p-5 w-[20rem] mt-5">
             <div className="font-bold rounded-full w-[3rem] bg-white text-black text-center p-3">
-              $
+              <ShoppingBagIcon />
             </div>
 
             <p className="mt-5">All Orders</p>
             <h1 className="text-xl font-bold">
-              $ {isLoading ? <Loader /> : orders?.totalOrders}
+              {isLoading ? <Loader /> : orders?.totalOrders}
             </h1>
           </div>
         </div>
@@ -140,7 +140,7 @@ const AdminDashboard = () => {
           <Chart
             options={state.options}
             series={state.series}
-            type="bar"
+            type="line"
             width="80%"
           />
         </div>
